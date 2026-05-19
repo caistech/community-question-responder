@@ -19,6 +19,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <Link href="/channels" className="hover:text-white">Channels</Link>
               <Link href="/kb" className="hover:text-white">KB</Link>
               <Link href="/setup/slack" className="hover:text-white">Slack setup</Link>
+              <Link href="/setup/discord" className="hover:text-white">Discord setup</Link>
             </nav>
           </div>
           <div className="flex items-center gap-4 text-sm text-gray-400">

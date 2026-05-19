@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateAndGetDb } from '@/lib/supabase/auth';
-import { slackClientFor } from '@/lib/slack/client';
+import { getProvider } from '@/lib/providers';
+import type { ProviderName } from '@/lib/providers';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   const { user, db, error } = await authenticateAndGetDb(request);
-  if (error || !db || !user) return NextResponse.json({ error: error ?? 'Unauthorized' }, { status: 401 });
+  if (error || !db || !user)
+    return NextResponse.json({ error: error ?? 'Unauthorized' }, { status: 401 });
 
   const body = await request.json().catch(() => ({}));
   const { workspace_id, channel_id, kb_namespace } = body;
@@ -19,7 +21,7 @@ export async function POST(request: NextRequest) {
 
   const { data: ws } = await db
     .from('slack_workspaces')
-    .select('id, encrypted_token')
+    .select('id, provider, workspace_id, workspace_name, encrypted_token')
     .eq('id', workspace_id)
     .single();
 
@@ -27,10 +29,10 @@ export async function POST(request: NextRequest) {
 
   let channelName: string | null = null;
   try {
-    const r = await slackClientFor(ws.encrypted_token).conversations.info({ channel: channel_id });
-    channelName = r.channel?.name ?? null;
+    const provider = getProvider(ws.provider as ProviderName);
+    channelName = await provider.fetchChannelName(ws, channel_id);
   } catch {
-    // Not fatal — store without name
+    // Not fatal
   }
 
   const { error: insertErr } = await db.from('slack_channels').insert({

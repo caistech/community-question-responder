@@ -1,39 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateAndGetDb } from '@/lib/supabase/auth';
-import { slackClientFor } from '@/lib/slack/client';
+import { getProvider } from '@/lib/providers';
+import type { ProviderName } from '@/lib/providers';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   const { user, db, error } = await authenticateAndGetDb(request);
-  if (error || !db || !user) return NextResponse.json({ error: error ?? 'Unauthorized' }, { status: 401 });
+  if (error || !db || !user)
+    return NextResponse.json({ error: error ?? 'Unauthorized' }, { status: 401 });
 
   const body = await request.json().catch(() => ({}));
   const token: string | undefined = body.token;
-  if (!token || !token.startsWith('xoxp-')) {
-    return NextResponse.json({ error: 'Token must be a user OAuth token (xoxp-…)' }, { status: 400 });
+  const providerName: ProviderName = (body.provider as ProviderName) ?? 'slack';
+
+  if (!token) return NextResponse.json({ error: 'token is required' }, { status: 400 });
+  if (!['slack', 'discord'].includes(providerName)) {
+    return NextResponse.json({ error: `invalid provider: ${providerName}` }, { status: 400 });
   }
 
-  // Validate via auth.test
-  let info: { team_id?: string; team?: string; user_id?: string; user?: string };
+  let validation;
   try {
-    info = (await slackClientFor(token).auth.test()) as typeof info;
+    const provider = getProvider(providerName);
+    validation = await provider.validateToken(token);
   } catch (e) {
-    return NextResponse.json({ error: `Slack rejected token: ${(e as Error).message}` }, { status: 400 });
+    return NextResponse.json(
+      { error: `${providerName} rejected token: ${(e as Error).message}` },
+      { status: 400 }
+    );
   }
 
-  if (!info.team_id) {
-    return NextResponse.json({ error: 'auth.test missing team_id' }, { status: 400 });
-  }
+  const scopes =
+    providerName === 'slack'
+      ? ['channels:history', 'channels:read', 'chat:write', 'users:read']
+      : ['guilds', 'messages.read', 'send_messages'];
 
   const { error: upsertErr } = await db
     .from('slack_workspaces')
     .upsert(
       {
-        workspace_id: info.team_id,
-        workspace_name: info.team ?? null,
+        provider: providerName,
+        workspace_id: validation.workspace_id,
+        workspace_name: validation.workspace_name,
         encrypted_token: token,
-        scopes: ['channels:history', 'channels:read', 'chat:write', 'users:read'],
+        scopes,
         installed_by: user.id,
         updated_at: new Date().toISOString(),
       },
@@ -46,9 +56,10 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({
     ok: true,
-    workspace_id: info.team_id,
-    workspace_name: info.team,
-    user_id: info.user_id,
-    user_name: info.user,
+    provider: providerName,
+    workspace_id: validation.workspace_id,
+    workspace_name: validation.workspace_name,
+    user_id: validation.user_id,
+    user_name: validation.user_name,
   });
 }

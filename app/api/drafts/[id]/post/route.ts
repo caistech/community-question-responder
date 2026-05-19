@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateAndGetDb } from '@/lib/supabase/auth';
-import { slackClientFor } from '@/lib/slack/client';
+import { getProvider } from '@/lib/providers';
+import type { ProviderName, WorkspaceRow, ChannelRow } from '@/lib/providers';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,15 +19,14 @@ export async function POST(
 
   const { data: draft, error: draftErr } = await db
     .from('slack_drafts')
-    .select('id, draft_text, slack_msg_ts, status, channel_id')
+    .select('id, draft_text, slack_msg_ts, status, channel_id, kind')
     .eq('id', id)
     .single();
 
-  if (draftErr || !draft) return NextResponse.json({ error: 'Draft not found' }, { status: 404 });
+  if (draftErr || !draft)
+    return NextResponse.json({ error: 'Draft not found' }, { status: 404 });
 
-  if (
-    !['pending_review', 'post_failed', 'edited_then_sent'].includes(draft.status)
-  ) {
+  if (!['pending_review', 'post_failed', 'edited_then_sent'].includes(draft.status)) {
     return NextResponse.json(
       { error: `Draft in status ${draft.status} cannot be posted` },
       { status: 409 }
@@ -35,7 +35,7 @@ export async function POST(
 
   const { data: channel, error: chErr } = await db
     .from('slack_channels')
-    .select('channel_id, workspace_id')
+    .select('id, workspace_id, channel_id, channel_name, last_poll_ts, paused')
     .eq('id', draft.channel_id)
     .single();
 
@@ -44,7 +44,7 @@ export async function POST(
 
   const { data: ws, error: wsErr } = await db
     .from('slack_workspaces')
-    .select('encrypted_token')
+    .select('id, provider, workspace_id, workspace_name, encrypted_token')
     .eq('id', channel.workspace_id)
     .single();
 
@@ -54,17 +54,17 @@ export async function POST(
   const text = overrideText?.trim() || draft.draft_text;
   if (!text) return NextResponse.json({ error: 'Empty draft' }, { status: 400 });
 
-  const client = slackClientFor(ws.encrypted_token);
-
   try {
-    const postOpts: { channel: string; text: string; thread_ts?: string } = {
-      channel: channel.channel_id,
-      text,
-    };
+    const provider = getProvider(ws.provider as ProviderName);
     // Replies thread under the asker's message; announces post top-level.
-    if (draft.slack_msg_ts) postOpts.thread_ts = draft.slack_msg_ts;
+    const threadId = draft.slack_msg_ts && draft.kind === 'reply' ? draft.slack_msg_ts : null;
 
-    const resp = await client.chat.postMessage(postOpts);
+    const resp = await provider.postMessage(
+      ws as WorkspaceRow,
+      channel as ChannelRow,
+      text,
+      threadId
+    );
 
     const newStatus = overrideText ? 'edited_then_sent' : 'sent';
     await db
@@ -72,7 +72,7 @@ export async function POST(
       .update({
         draft_text: text,
         status: newStatus,
-        posted_ts: resp.ts ?? null,
+        posted_ts: resp.posted_ts,
         posted_at: new Date().toISOString(),
         reviewed_by: user.id,
       })
@@ -82,10 +82,10 @@ export async function POST(
       draft_id: id,
       actor_id: user.id,
       action: overrideText ? 'edited_and_posted' : 'posted',
-      payload: { ts: resp.ts, channel: channel.channel_id },
+      payload: { posted_ts: resp.posted_ts, channel: channel.channel_id, provider: ws.provider },
     });
 
-    // Bump approved_count via a fresh read + update (no SQL RPC needed)
+    // Bump approved_count
     const { data: ch2 } = await db
       .from('slack_channels')
       .select('approved_count')
@@ -98,7 +98,7 @@ export async function POST(
         .eq('id', draft.channel_id);
     }
 
-    return NextResponse.json({ ok: true, ts: resp.ts });
+    return NextResponse.json({ ok: true, posted_ts: resp.posted_ts });
   } catch (e) {
     const msg = (e as Error).message;
     await db
@@ -109,7 +109,7 @@ export async function POST(
       draft_id: id,
       actor_id: user.id,
       action: 'post_failed',
-      payload: { error: msg },
+      payload: { error: msg, provider: ws.provider },
     });
     return NextResponse.json({ error: msg }, { status: 500 });
   }
