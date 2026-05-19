@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-  if (!['doc', 'code', 'reply_example'].includes(source_kind)) {
+  if (!['doc', 'code', 'reply_example', 'learning'].includes(source_kind)) {
     return NextResponse.json({ error: 'invalid source_kind' }, { status: 400 });
   }
 

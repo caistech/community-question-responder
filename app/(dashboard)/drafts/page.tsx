@@ -11,6 +11,7 @@ interface DraftRow {
   confidence_score: number | null;
   cite_files: unknown;
   status: string;
+  kind: string;
   created_at: string;
   drafted_at: string | null;
   post_error: string | null;
@@ -28,7 +29,7 @@ export default async function DraftsPage() {
     .from('slack_drafts')
     .select(
       `id, asker_name, question_text, draft_text, confidence_score, cite_files,
-       status, created_at, drafted_at, post_error,
+       status, kind, created_at, drafted_at, post_error,
        slack_channels(channel_name, channel_id, kb_namespace)`
     )
     .in('status', ['pending_review', 'post_failed'])

@@ -57,11 +57,14 @@ export async function POST(
   const client = slackClientFor(ws.encrypted_token);
 
   try {
-    const resp = await client.chat.postMessage({
+    const postOpts: { channel: string; text: string; thread_ts?: string } = {
       channel: channel.channel_id,
       text,
-      thread_ts: draft.slack_msg_ts,
-    });
+    };
+    // Replies thread under the asker's message; announces post top-level.
+    if (draft.slack_msg_ts) postOpts.thread_ts = draft.slack_msg_ts;
+
+    const resp = await client.chat.postMessage(postOpts);
 
     const newStatus = overrideText ? 'edited_then_sent' : 'sent';
     await db

@@ -5,7 +5,7 @@ import { embedBatch } from './embedder';
 export interface IngestInput {
   namespace: string;
   source_path: string;
-  source_kind: 'doc' | 'code' | 'reply_example';
+  source_kind: 'doc' | 'code' | 'reply_example' | 'learning';
   title?: string;
   content: string;
 }

@@ -11,6 +11,7 @@ interface DraftRow {
   confidence_score: number | null;
   cite_files: unknown;
   status: string;
+  kind: string;
   created_at: string;
   drafted_at: string | null;
   post_error: string | null;
@@ -72,9 +73,15 @@ export function DraftCard({ draft }: { draft: DraftRow }) {
   return (
     <div className="rounded-2xl border border-gray-800 bg-gray-900/50">
       <div className="border-b border-gray-800 px-6 py-3 text-xs text-gray-400">
-        <span className="font-medium text-gray-300">
-          {draft.asker_name ?? 'unknown'}
-        </span>
+        {draft.kind === 'announce' ? (
+          <span className="rounded-full bg-purple-500/20 px-2 py-0.5 font-medium text-purple-300">
+            announce
+          </span>
+        ) : (
+          <span className="font-medium text-gray-300">
+            {draft.asker_name ?? 'unknown'}
+          </span>
+        )}
         <span className="mx-2 text-gray-600">·</span>
         <span>#{draft.slack_channels?.channel_name ?? draft.slack_channels?.channel_id}</span>
         <span className="mx-2 text-gray-600">·</span>
@@ -87,7 +94,9 @@ export function DraftCard({ draft }: { draft: DraftRow }) {
       </div>
 
       <div className="px-6 py-4">
-        <div className="mb-1 text-xs uppercase tracking-wide text-gray-500">Question</div>
+        <div className="mb-1 text-xs uppercase tracking-wide text-gray-500">
+          {draft.kind === 'announce' ? 'Operator note' : 'Question'}
+        </div>
         <div className="mb-4 whitespace-pre-wrap text-sm text-gray-300">
           {expanded || draft.question_text.length <= 400
             ? draft.question_text
