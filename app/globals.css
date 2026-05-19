@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --primary: oklch(0.586 0.19 145.71); /* Corporate Green */
+  --ring: oklch(0.586 0.19 145.71);
+  --accent: 142 71% 45%; /* Green accent #22c55e */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --primary: oklch(0.586 0.19 145.71); /* Corporate Green */
+  --ring: oklch(0.586 0.19 145.71);
+  --accent: 142 71% 45%; /* Green accent #22c55e */
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-sans);
+}

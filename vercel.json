@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    {
+      "path": "/api/cron/slack-poll",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/slack-classify",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/slack-draft",
+      "schedule": "*/5 * * * *"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "name": "community-question-responder",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Automated thoughtful replies for dev-tool community Slacks and Discords. Polls a channel, drafts a high-quality reply against a vendor-specific knowledge base, holds it for one-click human approval. Built to scale a founder's community presence without diluting it.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
+    "@slack/web-api": "^7.10.0",
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.89.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.562.0",
+    "next": "^14.2.35",
+    "openai": "^4.77.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^3.4.17",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "typescript": "^5"
+  }
+}
