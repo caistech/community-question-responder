@@ -8,6 +8,10 @@ export interface WorkspaceRow {
   workspace_id: string;
   workspace_name: string | null;
   encrypted_token: string;
+  /** Slack: 'xoxb' | 'xoxp' (legacy). Discord: 'discord-bot'. Null for legacy rows. */
+  token_type?: 'xoxb' | 'xoxp' | 'discord-bot' | null;
+  /** Slack only — signing secret for event-subscription webhooks. Null until needed. */
+  signing_secret?: string | null;
 }
 
 export interface ChannelRow {

@@ -26,19 +26,30 @@ export const slackProvider: Provider = {
   name: 'slack',
 
   async validateToken(token: string): Promise<AuthValidation> {
-    if (!token.startsWith('xoxp-')) {
-      throw new Error('Slack token must be a user OAuth token (xoxp-…)');
+    if (!token.startsWith('xoxb-')) {
+      if (token.startsWith('xoxp-')) {
+        throw new Error(
+          'User OAuth tokens (xoxp-) are no longer accepted. Mint a bot token (xoxb-) from the Bot Token Scopes section instead. See SLACK_SETUP.md.'
+        );
+      }
+      throw new Error('Slack token must be a bot OAuth token (xoxb-…)');
     }
     const info = (await client(token).auth.test()) as {
       team_id?: string;
       team?: string;
       user_id?: string;
       user?: string;
+      bot_id?: string;
     };
     if (!info.team_id) throw new Error('Slack auth.test missing team_id');
+    if (!info.bot_id) {
+      throw new Error('Token validated but missing bot_id — confirm this is a Bot User OAuth Token (xoxb-), not a User OAuth Token.');
+    }
     return {
       workspace_id: info.team_id,
       workspace_name: info.team ?? null,
+      // For bot tokens, user_id is the bot's own user_id — used to skip
+      // our own posts when polling. Identity for display is bot_id-derived.
       user_id: info.user_id ?? null,
       user_name: info.user ?? null,
     };

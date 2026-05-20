@@ -157,11 +157,17 @@ components. Approval-button clicks call `/api/drafts/[id]/post` etc.
 `SUPABASE_SERVICE_ROLE_KEY` must never appear in any `'use client'` file,
 any file imported by a client component, or any `NEXT_PUBLIC_*` variable.
 
-### Slack user token is server-only
+### Provider tokens are server-only
 
-Stored in `slack_workspaces.encrypted_token`. Never logged. Never sent to
-the client. The dashboard fetches drafts via Supabase — the Slack API is
+Slack **bot tokens** (`xoxb-`) and Discord bot tokens are stored in
+`slack_workspaces.encrypted_token` (provider-agnostic column name —
+predates the multi-provider refactor). Never logged. Never sent to the
+client. The dashboard fetches drafts via Supabase — provider APIs are
 only called from `/api/cron/*` and `/api/drafts/*` server-side routes.
+
+User OAuth tokens (`xoxp-`) are NOT accepted on Slack — the validator
+in `lib/providers/slack/index.ts` rejects them. See `SLACK_SETUP.md` for
+the bot-app install flow.
 
 ### Middleware allowlist pattern
 
@@ -224,9 +230,17 @@ Required for production:
   `SUPABASE_SERVICE_ROLE_KEY`
 - `ANTHROPIC_API_KEY` (or `OPENROUTER_API_KEY`)
 - `OPENAI_API_KEY` (for embeddings)
-- `SLACK_USER_TOKEN`, `SLACK_SIGNING_SECRET`
 - `RESEND_API_KEY` (notifications)
 - `CRON_SECRET`
+
+Slack credentials are no longer env vars — they're per-workspace rows in
+`slack_workspaces` (token + signing_secret), captured via `/setup/slack`.
+The operator pastes a **bot token** (`xoxb-`); user tokens (`xoxp-`) are
+rejected. Signing secret is captured at the same time but only required
+when CQR later adds Slack event-subscription webhooks. See `SLACK_SETUP.md`.
+
+Discord credentials are also per-workspace (`slack_workspaces` with
+`provider='discord'`), captured via `/setup/discord`.
 
 ---
 
