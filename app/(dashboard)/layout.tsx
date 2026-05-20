@@ -1,10 +1,27 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/service';
 import { VoiceFABLoader } from '@/components/voice/voice-fab-loader';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+
+  // Gate the dashboard behind the first-run /setup wizard until it's done.
+  // The /setup route reads its own state and bounces back to /drafts when
+  // complete, so there's no redirect loop.
+  if (user) {
+    const db = createServiceClient();
+    const { data: config } = await db
+      .from('system_config')
+      .select('setup_complete')
+      .eq('id', 1)
+      .maybeSingle();
+    if (!config?.setup_complete) {
+      redirect('/setup');
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
