@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { VoiceFABLoader } from '@/components/voice/voice-fab-loader';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -33,6 +34,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
       </header>
       <main>{children}</main>
+
+      {/* Voice FAB — bottom-right, every authenticated page (VOICE AI RULE).
+          Silent no-op until system_config.agent_id is populated by /setup. */}
+      <VoiceFABLoader />
     </div>
   );
 }

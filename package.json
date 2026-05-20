@@ -12,6 +12,9 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
+    "@caistech/elevenlabs-convai": "^0.1.5",
+    "@elevenlabs/client": "^1.8.0",
+    "@elevenlabs/react": "^1.6.2",
     "@slack/web-api": "^7.10.0",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.89.0",
