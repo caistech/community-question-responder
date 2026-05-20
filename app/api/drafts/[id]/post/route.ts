@@ -54,17 +54,31 @@ export async function POST(
   const text = overrideText?.trim() || draft.draft_text;
   if (!text) return NextResponse.json({ error: 'Empty draft' }, { status: 400 });
 
-  try {
-    const provider = getProvider(ws.provider as ProviderName);
-    // Replies thread under the asker's message; announces post top-level.
-    const threadId = draft.slack_msg_ts && draft.kind === 'reply' ? draft.slack_msg_ts : null;
+  // Read deployment_mode — in customer-self-serve mode, approved drafts
+  // are marked reviewed without ever posting to the provider. The
+  // operator's value comes from the draft itself; the bot never speaks.
+  const { data: cfg } = await db
+    .from('system_config')
+    .select('deployment_mode')
+    .eq('id', 1)
+    .maybeSingle();
+  const deploymentMode = (cfg?.deployment_mode as string | null) ?? 'customer-self-serve';
+  const shouldPost = deploymentMode === 'vendor-self-deploy';
 
-    const resp = await provider.postMessage(
-      ws as WorkspaceRow,
-      channel as ChannelRow,
-      text,
-      threadId
-    );
+  try {
+    let postedTs: string | null = null;
+    if (shouldPost) {
+      const provider = getProvider(ws.provider as ProviderName);
+      // Replies thread under the asker's message; announces post top-level.
+      const threadId = draft.slack_msg_ts && draft.kind === 'reply' ? draft.slack_msg_ts : null;
+      const resp = await provider.postMessage(
+        ws as WorkspaceRow,
+        channel as ChannelRow,
+        text,
+        threadId
+      );
+      postedTs = resp.posted_ts;
+    }
 
     const newStatus = overrideText ? 'edited_then_sent' : 'sent';
     await db
@@ -72,7 +86,7 @@ export async function POST(
       .update({
         draft_text: text,
         status: newStatus,
-        posted_ts: resp.posted_ts,
+        posted_ts: postedTs,
         posted_at: new Date().toISOString(),
         reviewed_by: user.id,
       })
@@ -81,8 +95,15 @@ export async function POST(
     await db.from('audit_log').insert({
       draft_id: id,
       actor_id: user.id,
-      action: overrideText ? 'edited_and_posted' : 'posted',
-      payload: { posted_ts: resp.posted_ts, channel: channel.channel_id, provider: ws.provider },
+      action: shouldPost
+        ? (overrideText ? 'edited_and_posted' : 'posted')
+        : 'approved_locally_no_post',
+      payload: {
+        deployment_mode: deploymentMode,
+        posted_ts: postedTs,
+        channel: channel.channel_id,
+        provider: ws.provider,
+      },
     });
 
     // Bump approved_count
