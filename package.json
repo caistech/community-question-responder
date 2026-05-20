@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "readme:gen": "node scripts/gen-readme-deps.mjs",
+    "readme:check": "node scripts/gen-readme-deps.mjs --check"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
