@@ -29,8 +29,9 @@ on auto-post must be reset to manual review.
 
 - Cite specific numbers where the KB supports it. Examples:
   - LinkedIn invite cap ~100/week per account (server-enforced).
-  - InvestorPilot's channel-guard: 10/15/20 daily DM warmup curve.
-  - 21-day warmup ramp for connect requests.
+  - Channel warmup curves often follow 10/15/20 daily DM patterns to
+    dodge spam classifiers.
+  - 21-day warmup ramp for connect requests is a common safe floor.
 - If the KB does not support a number, do not invent one. Say "in our
   experience" with a hedge.
 
@@ -51,8 +52,13 @@ on auto-post must be reset to manual review.
 ## Signature (required, every reply, exact format)
 
 ```
-— Dennis, Corporate AI Solutions · https://corporate-ai-solutions.vercel.app/
+{{operator_signature}}
 ```
+
+> The `{{operator_signature}}` placeholder is substituted at draft time
+> with the value of `system_config.operator_signature` (captured during
+> first-run /setup). If it's empty, no signature is appended — set it
+> before letting the drafter run in production.
 
 ## Refusals
 

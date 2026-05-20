@@ -39,9 +39,9 @@ export default async function NewLearningPage() {
       <h1 className="mb-2 text-3xl font-bold">New learning</h1>
       <p className="mb-8 max-w-2xl text-sm text-gray-400">
         Type a thing you just learned about a vendor (API behaviour, edge
-        case, gotcha) while building InvestorPilot or anywhere else. It gets
-        written to the KB immediately so future replies are smarter, and
-        optionally drafted as a community announce post for your review.
+        case, gotcha) while building. It gets written to the KB immediately
+        so future replies are smarter, and optionally drafted as a
+        community announce post for your review.
       </p>
 
       <LearningForm channelOptions={channelOptions} namespaces={namespaces} />

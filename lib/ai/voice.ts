@@ -1,19 +1,30 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 
-let _voiceRules: string | null = null;
+let _voiceRulesTemplate: string | null = null;
 
-/**
- * Load voice.md once per process and cache. The drafter loads this into
- * its system prompt at every call.
- */
-export async function loadVoiceRules(): Promise<string> {
-  if (_voiceRules) return _voiceRules;
+async function loadTemplate(): Promise<string> {
+  if (_voiceRulesTemplate !== null) return _voiceRulesTemplate;
   const p = path.join(process.cwd(), 'lib', 'ai', 'voice.md');
   try {
-    _voiceRules = await fs.readFile(p, 'utf-8');
+    _voiceRulesTemplate = await fs.readFile(p, 'utf-8');
   } catch {
-    _voiceRules = '';
+    _voiceRulesTemplate = '';
   }
-  return _voiceRules;
+  return _voiceRulesTemplate;
+}
+
+/**
+ * Load voice.md and substitute the `{{operator_signature}}` placeholder
+ * with the per-install operator signature. Caller fetches the signature
+ * from system_config (via service-role client) and passes it in — keeps
+ * voice.ts framework-agnostic.
+ *
+ * Template is cached per-process; substitution happens on every call so
+ * an in-flight operator-identity change reflects on the next draft
+ * without a restart.
+ */
+export async function loadVoiceRules(operatorSignature: string): Promise<string> {
+  const template = await loadTemplate();
+  return template.replace(/\{\{operator_signature\}\}/g, operatorSignature ?? '');
 }

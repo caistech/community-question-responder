@@ -30,7 +30,13 @@ export async function draftAnnounce(
   rawLearning: string,
   title: string | null
 ): Promise<AnnounceDraftResult> {
-  const voice = await loadVoiceRules();
+  const { data: cfg } = await db
+    .from('system_config')
+    .select('operator_signature')
+    .eq('id', 1)
+    .maybeSingle();
+  const operatorSignature = (cfg?.operator_signature as string | null) ?? '';
+  const voice = await loadVoiceRules(operatorSignature);
   const hits = await retrieveKb(db, namespace, rawLearning, { topK: 5, threshold: 0.65 });
 
   const kbBlock = hits.length

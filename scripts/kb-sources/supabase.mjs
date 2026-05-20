@@ -88,7 +88,7 @@ The thing nobody warns you about: when you migrate from \`profiles.organisation_
 
 Drop the migration + the code-swap in the same PR. Don't stage them. I learned this the hard way: my migration nulled \`profiles.organisation_id\` to "fail-closed" and broke every existing read site in production. The fail-closed logic only holds if the reads have already been swapped. Two recovery migrations later, lesson absorbed.
 
-— Dennis, Corporate AI Solutions · https://corporate-ai-solutions.vercel.app/`,
+{{operator_signature}}`,
     },
     {
       source_path: 'reply-examples/supabase-middleware-allowlist.md',
@@ -129,7 +129,7 @@ Two pieces of advice from the second time this bit me:
 
 For verifying your route handler works once you've allowlisted: curl directly with the expected header. If it returns 200 + your real response, you're past the middleware gate and into your handler. The first time it gives a route-specific error message (rather than the generic \`Unauthorized\`), you've fixed it.
 
-— Dennis, Corporate AI Solutions · https://corporate-ai-solutions.vercel.app/`,
+{{operator_signature}}`,
     },
   ],
 };

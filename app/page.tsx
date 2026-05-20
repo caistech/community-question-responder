@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { PORTFOLIO_LINKS } from '@/lib/portfolio-links';
 
 export default function Home() {
   return (
@@ -30,10 +31,10 @@ export default function Home() {
               Open drafts queue
             </Link>
             <a
-              href="https://corporate-ai-solutions.vercel.app/"
+              href={PORTFOLIO_LINKS.engagement}
               className="rounded-lg border border-gray-700 px-6 py-3 font-medium text-gray-200 transition-colors hover:bg-gray-900"
             >
-              Talk to us about a build
+              Studio-in-residence inquiries
             </a>
           </div>
         </div>
@@ -82,14 +83,20 @@ export default function Home() {
 
       <section className="px-6 py-16">
         <div className="mx-auto max-w-3xl text-sm text-gray-400">
-          Built by{' '}
+          A BYOK Factory tool ·{' '}
           <a
-            href="https://corporate-ai-solutions.vercel.app/"
+            href={PORTFOLIO_LINKS.marketplace}
             className="text-emerald-400 hover:underline"
           >
-            Corporate AI Solutions
+            See sibling tools
+          </a>{' '}
+          ·{' '}
+          <a
+            href={PORTFOLIO_LINKS.engagement}
+            className="text-emerald-400 hover:underline"
+          >
+            Doctrine
           </a>
-          .
         </div>
       </section>
     </main>

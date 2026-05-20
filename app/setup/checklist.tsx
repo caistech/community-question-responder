@@ -126,7 +126,7 @@ export function SetupChecklist({ userEmail, config, workspaceCount }: Props) {
             label="Your name"
             value={name}
             onChange={setName}
-            placeholder="Dennis McMahon"
+            placeholder="Your full name"
             required
           />
           <Input

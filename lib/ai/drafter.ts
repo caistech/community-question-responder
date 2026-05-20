@@ -27,7 +27,13 @@ export async function draftReply(
   questionText: string,
   askerName: string | null
 ): Promise<DraftResult> {
-  const voice = await loadVoiceRules();
+  const { data: cfg } = await db
+    .from('system_config')
+    .select('operator_signature')
+    .eq('id', 1)
+    .maybeSingle();
+  const operatorSignature = (cfg?.operator_signature as string | null) ?? '';
+  const voice = await loadVoiceRules(operatorSignature);
   const hits = await retrieveKb(db, namespace, questionText, { topK: 6, threshold: 0.7 });
 
   const kbBlock = hits.length

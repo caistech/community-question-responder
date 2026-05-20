@@ -13,8 +13,9 @@ export default function DiscordSetupPage() {
         Discord works differently from Slack — you create a <strong>bot</strong>{' '}
         (not a user app), invite the bot into a Discord server (called a
         guild), and paste the <strong>bot token</strong> here. Posts will
-        appear as the bot's identity, not yours; the signature line in each
-        reply attributes the post to you (Corporate AI Solutions).
+        appear as the bot&apos;s identity, not yours; the signature line in
+        each reply attributes the post to whatever you set in{' '}
+        <code>operator_signature</code> during first-run /setup.
       </p>
 
       <div className="mb-8 rounded-2xl border border-gray-800 bg-gray-900/40 p-6 text-sm text-gray-400">
@@ -33,9 +34,10 @@ export default function DiscordSetupPage() {
             , click <strong>New Application</strong>.
           </li>
           <li>
-            Name it (e.g. <em>CQR Bot</em> or <em>Dennis Bot</em>), set an
-            avatar that visually attributes to you (your photo or Corporate AI
-            Solutions logo — Discord shows this on every post).
+            Name it whatever the community will see on every reply — for
+            example, <em>Community Reply Bot</em> or your company name with{' '}
+            <em>Bot</em> appended. Set an avatar that visually attributes
+            to your brand — Discord shows this on every post.
           </li>
           <li>
             Left sidebar → <strong>Bot</strong>. Click <strong>Reset Token</strong> and copy the

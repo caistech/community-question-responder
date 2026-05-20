@@ -65,7 +65,7 @@ export function LearningForm({ channelOptions, namespaces }: Props) {
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Unipile drops account.status events during re-auth"
+          placeholder="Vendor X drops account.status events during re-auth"
           className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-base outline-none focus:border-emerald-500"
         />
       </div>
