@@ -47,9 +47,17 @@ export default async function KbPage() {
       <div className="mb-2 text-xs uppercase tracking-wide text-gray-500">Knowledge base</div>
       <h1 className="mb-2 text-3xl font-bold">Ingested documents</h1>
       <p className="mb-8 max-w-2xl text-sm text-gray-400">
-        Source documents the drafter retrieves from when building a reply. Each
-        document is chunked and embedded with OpenAI <code className="text-xs">text-embedding-3-small</code>.
-        Re-ingesting a path replaces the chunks atomically.
+        The source-of-truth pool the drafter retrieves from when building a
+        reply. Add documents via{' '}
+        <code className="text-xs">POST /api/kb/ingest</code> (or capture
+        learnings on the fly at{' '}
+        <a href="/learnings/new" className="text-emerald-400 hover:underline">
+          /learnings/new
+        </a>
+        ). Each document is chunked and embedded with OpenAI{' '}
+        <code className="text-xs">text-embedding-3-small</code>; re-ingesting a
+        path replaces the chunks atomically. Thin or empty KBs produce thin
+        drafts — this is where reply quality is set.
       </p>
 
       {byNamespace.size === 0 ? (

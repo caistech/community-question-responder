@@ -42,9 +42,21 @@ export default async function ChannelsPage() {
       <div className="mb-2 text-xs uppercase tracking-wide text-gray-500">Channels</div>
       <h1 className="mb-2 text-3xl font-bold">Watched channels</h1>
       <p className="mb-8 max-w-2xl text-sm text-gray-400">
-        Slack and Discord channels the cron polls every 5 minutes. Each channel
-        binds to a KB namespace — the drafter retrieves chunks from that
-        namespace when building a reply for questions on this channel.
+        Slack and Discord channels the cron polls every 5 minutes. Each row
+        binds a channel to a KB namespace — the drafter retrieves from that
+        namespace when answering questions in this channel. Use this view to
+        spot paused channels (the cron skips them), check approval volume per
+        channel, and confirm auto-post status. Add a workspace at{' '}
+        <a href="/setup/slack" className="text-emerald-400 hover:underline">
+          /setup/slack
+        </a>{' '}
+        or{' '}
+        <a href="/setup/discord" className="text-emerald-400 hover:underline">
+          /setup/discord
+        </a>
+        ; channel rows are created from server-side scripts (
+        <code className="text-xs">scripts/seed-kb.mjs</code> or direct SQL)
+        until the add-channel UI ships.
       </p>
 
       {rows.length === 0 ? (
