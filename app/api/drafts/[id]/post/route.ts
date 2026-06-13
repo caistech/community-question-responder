@@ -119,7 +119,7 @@ export async function POST(
         .eq('id', draft.channel_id);
     }
 
-    return NextResponse.json({ ok: true, posted_ts: resp.posted_ts });
+    return NextResponse.json({ ok: true, posted_ts: postedTs });
   } catch (e) {
     const msg = (e as Error).message;
     await db
