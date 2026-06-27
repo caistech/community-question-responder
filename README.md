@@ -14,9 +14,17 @@ for the studio-in-residence engagement that pairs with self-hosted use.
 
 ---
 
+## What's real vs what's stubbed
+
+- **Real and runnable today:** the full pipeline — poll → classify (Claude Haiku) → draft (Claude Sonnet, knowledge-base-grounded with citations) → one-click human approval → post; Slack **and** Discord providers; a `pgvector` knowledge base; the operator voice-capture agent (auto-provisioned at `/setup`); Vercel cron. Deploy it on your keys and it runs.
+- **Gated by design (not missing):** auto-post stays OFF until ≥50 approved drafts **and** explicit per-channel opt-in — the human approval gate is non-negotiable for the first 60 days of any channel.
+- **Not in this repo (by design):** the `@caistech/*` Operator Core source — consumed as a compiled package from the private registry (see "Shared substrate" below).
+
+---
+
 ## Deploy your own
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdennissolver%2Fcommunity-question-responder&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,ANTHROPIC_API_KEY,OPENAI_API_KEY,RESEND_API_KEY,RESEND_FROM_EMAIL,ELEVENLABS_API_KEY,CRON_SECRET,NEXT_PUBLIC_APP_URL&envDescription=Required+credentials+%E2%80%94+all+BYOK%2C+see+README+for+links&envLink=https%3A%2F%2Fgithub.com%2Fdennissolver%2Fcommunity-question-responder%23required-credentials)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcaistech%2Fcommunity-question-responder&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,ANTHROPIC_API_KEY,OPENAI_API_KEY,RESEND_API_KEY,RESEND_FROM_EMAIL,ELEVENLABS_API_KEY,CRON_SECRET,NEXT_PUBLIC_APP_URL&envDescription=Required+credentials+%E2%80%94+all+BYOK%2C+see+README+for+links&envLink=https%3A%2F%2Fgithub.com%2Fcaistech%2Fcommunity-question-responder%23required-credentials)
 
 Click the button, authorize GitHub + Vercel, paste your credentials when
 prompted, deploy. First visit lands you on `/setup` which captures operator
@@ -139,7 +147,7 @@ role key directly.
 ## Local development
 
 ```bash
-git clone https://github.com/dennissolver/community-question-responder.git
+git clone https://github.com/caistech/community-question-responder.git
 cd community-question-responder
 cp .env.example .env.local
 # fill in Supabase, Anthropic, OpenAI, Resend, ElevenLabs credentials
