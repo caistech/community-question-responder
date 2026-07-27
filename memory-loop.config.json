@@ -1,0 +1,4 @@
+{
+  "_doc": "No voice-memory loop exists here to probe. @caistech/elevenlabs-convai is declared in package.json but imported by ZERO files: no convai routes of any kind, no post-call handler, no convai_*/memory tables, no VoiceWidget mount. The dependency is vestigial — inherited from the scaffold and never wired to anything. The probe asserts a mid-call save/recall round-trip against routes that do not exist, so running it here would report a failure of something never built. Revisit if this product gains a voice surface; at that point build the loop, do not extend this opt-out.",
+  "memoryLoop": false
+}
